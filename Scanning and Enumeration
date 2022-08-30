@@ -94,6 +94,7 @@ Researching Potential Vulnerabilities
     
     -> Potencial Vulnerabilidade no OpenLuck (https://www.exploit-db.com/exploits/47080), (https://github.com/heltonWernik/OpenLuck).
     -> Potencial Vulnerabilidade no Apache httpd 1.3.20  (https://www.cvedetails.com/vulnerability-list/vendor_id-45/product_id-66/version_id-369927/Apache-Http-Server-1.3.20.html)
+    -> Potencial Vulnerabilidade no OpenSSL/0.9.6b (https://www.exploit-db.com/exploits/40347)
     
     139 - SMB
     # UNIX (Samba 2.2.1a)
@@ -112,7 +113,6 @@ Researching Potential Vulnerabilities
 
     22 - OpenSSH 2.9p2
         
-    -> Potencial Vulnerabilidade no OpenSSL/0.9.6b (https://www.exploit-db.com/exploits/40347)
     -> Potencial Vulnerabilidade no  OpenSSH 2.9p2 (https://www.cvedetails.com/vulnerability-list/vendor_id-97/product_id-585/version_id-369523/Openbsd-Openssh-2.9p2.html).        
     
     111 - rpcbind
