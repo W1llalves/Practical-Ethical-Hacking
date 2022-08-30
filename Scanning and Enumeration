@@ -1,69 +1,122 @@
 Para realizar esse laboratório utilizei um SO kali linux com as seguintes configurações:
 Linux kali 5.15.0-kali3-amd64 #1 SMP Debian 5.15.15-2kali1 (2022-01-31) x86_64 GNU/Linux
+
 O alvo foi uma VM Kioptrix, disponibilizada no seguinte endereço:
 https://www.vulnhub.com/entry/kioptrix-level-1-1,22/
 
-Installing Kioptrix
-    Fornecer materiais que permitam a qualquer pessoa ganhar experiência prática em segurança digital,
-    software de computador e administração de rede. https://www.vulnhub.com/entry/kioptrix-level-1-1,22/
 
-scanning with nmap
-        arp-scan -l
-            arp-scan -> é uma ferramenta de linha de comando que usa o protocolo ARP para descobrir e identificar hosts IP
-            na rede local. Está disponível para Linux e BSD sob a licença GPL.
-            -l -> Gere endereços da configuração da interface de rede.
+SCANNING WITH NMAP
+        #arp-scan -l
 
-        netdiscover -r 192.168.57.0/24         192.168.57.4
-            Netdiscover é uma ferramenta de reconhecimento de endereço ativo/passivo,
-            desenvolvido principalmente para aquelas redes sem fio sem servidor dhcp,
-            quando você está dirigindo. Também pode ser usado em redes hub/switched.
-            -r -> range.
+        #netdiscover -r 192.168.57.0/24         
+            
+        #nmap -T4 -p- -A 192.168.57.4
+            -Portas Abertas:
+                22/tcp    open  ssh         OpenSSH 2.9p2 (protocol 1.99)
+                80, 443/tcp    open  http        Apache httpd 1.3.20 ((Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b)
+                111/tcp   open  rpcbind     2 (RPC #100000)
+                139/tcp   open  netbios-ssn Samba smbd (workgroup: MYGROUP)
+                32768/tcp open  status      1 (RPC #100024)
+                
+            -SO, Versão, Script e Traceroute:
+                MAC Address: 08:00:27:69:D6:E6 (Oracle VirtualBox virtual NIC)
+                Device type: general purpose
+                Running: Linux 2.4.X
+                OS CPE: cpe:/o:linux:linux_kernel:2.4
+                OS details: Linux 2.4.9 - 2.4.18 (likely embedded)
+                Network Distance: 1 hop
 
-        nmap -T4 -p- -A 192.168.57.4
-            nmap — Ferramenta de exploração de rede e segurança / scanner de porta
-            -A  -> Habilite a detecção de SO, detecção de versão, verificação de script e traceroute.
-            -T <0-5>: Definir modelo de tempo (mais alto é mais rápido)
-            -p- -> testart todas as portas
+ENUMERATING HTTP AND HTTPS
 
-Enumerating HTTP and HTTPS
-    nikto
-        é uma poderosa ferramenta escrita em Perl cujo
-        objetivo é a análise de vulnerabilidades comuns em servidores Web.
-
-    nikto -h 192.168.57.4
-        mod_ssl/2.8.4 - mod_ssl 2.8.7 and lower are vulnerable to a remote buffer overflow which may allow a remote shell. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-0082, OSVDB-756.
+    #nikto -h 192.168.57.4 >> nikto.txt
+        -Vulnerabilidade WEB encontrada:
+            mod_ssl/2.8.4 - mod_ssl 2.8.7 and lower are vulnerable to a remote buffer overflow which may allow a remote shell. 
+            http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-0082, OSVDB-756.
 
 
-     dirbuster&
-
+     #dirbuster&
            http://192.168.57.4:80/
            GO faster
            /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
            php
+           
+                http://192.168.57.4/usage/usage_202211.html
 
-Enumerating SMB
-    msfconsole
-        Ele fornece um console centralizado “tudo em um” e permite acesso eficiente a
-        praticamente todas as opções disponíveis no MSF.
-            search smb
-            auxiliary/scanner/smb/smb_version
-            set RHOSTS 192.168.57.4
-            run
+ENUMERATING SMB
+    #msfconsole
+        >search smb
+            #  Name                                Rank     Check   Description
+            97 auxiliary/scanner/smb/smb_version   normal   No      SMB Version Detection
 
-    smbclient é um cliente que faz parte do pacote de software Samba .
-    Ele se comunica com um servidor LAN Manager , oferecendo uma interface semelhante à do programa ftp .
+            > use auxiliary/scanner/smb/smb_version
+                  Basic options:
+                  Name     Current Setting  Required  Description
+                  ----     ---------------  --------  -----------
+                  RHOSTS                    yes       The target host(s), see https://github.com/rapid7/metasploit-framework/wiki/Using-Me
+                                                      tasploit
+                  THREADS  1                yes       The number of concurrent threads (max one per host)
 
-        smbclient -L \\\\192.168.57.134\\
+            > RHOSTS
+            > set RHOSTS 192.168.57.4
+            > run
+            
+                [*] 192.168.57.4:139      - SMB Detected (versions:) (preferred dialect:) (signatures:optional)
+                [*] 192.168.57.4:139      -   Host could not be identified: Unix (Samba 2.2.1a)
+                [*] 192.168.57.4:         - Scanned 1 of 1 hosts (100% complete)
+                [*] Auxiliary module execution completed
 
-        smbclient \\\\192.168.57.4\\IPC$ (entrei no smb com esse comando)
+    #smbclient -L \\\\192.168.57.134\\
+        Sharename       Type      Comment
+        ---------       ----      -------
+        IPC$            IPC       IPC Service (Samba Server)
+        ADMIN$          IPC       IPC Service (Samba Server)
 
-Enumerating SSH
 
+    #smbclient \\\\192.168.57.4\\IPC$ 
+        Password for [WORKGROUP\root]:
+        Server does not support EXTENDED_SECURITY  but 'client use spnego = yes' and 'client ntlmv2 auth = yes' is set
+        Anonymous login successful
+        Try "help" to get a list of possible commands.
+        smb: \>
+    
 
+------------------------------------------------------------------------------------------------------------------------------------------------------
 Researching Potential Vulnerabilities
-    searchsploit , uma ferramenta de pesquisa de linha de comando para Exploit-DB
-    que também permite que você leve uma cópia do Exploit Database com você, onde quer que vá.
+    80/443 - 192.168.57.4 - 14:37
+    
+    # Pagina Padrão - Apache - PHP
+    # Divulgação de informações - 404
+    # Divulgação de informações - server headers disclose version information
+    # 80, 443/tcp    open  http        Apache httpd 1.3.20 ((Unix)  (Red-Hat/Linux) mod_ssl/2.8.4 OpenSSL/0.9.6b)
+        mod_ssl/2.8.4 - mod_ssl 2.8.7 and lower are vulnerable to a remote buffer overflow which may allow a remote shell. 
+        http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-0082, OSVDB-756.
+    # Webanalizer Version 2.01 - http://192.168.57.4/usage/usage_202211.html
+    
+    -> Potencial Vulnerabilidade no OpenLuck (https://www.exploit-db.com/exploits/47080), (https://github.com/heltonWernik/OpenLuck).
+    -> Potencial Vulnerabilidade no Apache httpd 1.3.20  (https://www.cvedetails.com/vulnerability-list/vendor_id-45/product_id-66/version_id-369927/Apache-Http-Server-1.3.20.html)
+    
+    139 - SMB
+    # UNIX (Samba 2.2.1a)
+        #searchsploit Samba 2.2.1a
+            ------------------------------------------------------------------------------------------ ---------------------------------
+             Exploit Title                                                                            |  Path
+            ------------------------------------------------------------------------------------------ ---------------------------------
+            Samba 2.2.0 < 2.2.8 (OSX) - trans2open Overflow (Metasploit)                              | osx/remote/9924.rb
+            Samba < 2.2.8 (Linux/BSD) - Remote Code Execution                                         | multiple/remote/10.c
+            Samba < 3.0.20 - Remote Heap Overflow                                                     | linux/remote/7701.txt
+            Samba < 3.6.2 (x86) - Denial of Service (PoC)                                             | linux_x86/dos/36741.py
+            ------------------------------------------------------------------------------------------ ---------------------------------
+            Shellcodes: No Results
+            
+    -> Potencial Vulnerabilidade no trans2open (https://www.rapid7.com/db/modules/exploit/linux/samba/trans2open/), (https://www.exploit-db.com/exploits/16861).
 
-        searchsploit Samba 2.2.1a
-
-
+    22 - OpenSSH 2.9p2
+        
+    -> Potencial Vulnerabilidade no OpenSSL/0.9.6b (https://www.exploit-db.com/exploits/40347)
+    -> Potencial Vulnerabilidade no  OpenSSH 2.9p2 (https://www.cvedetails.com/vulnerability-list/vendor_id-97/product_id-585/version_id-369523/Openbsd-Openssh-2.9p2.html).        
+    
+    111 - rpcbind
+    
+    -> Potencial Vulnerabilidade no rpcbind (https://www.cvedetails.com/vulnerability-list/vendor_id-15678/Rpcbind-Project.html).
+    
+    
