@@ -1,0 +1,69 @@
+Para realizar esse laboratório utilizei um SO kali linux com as seguintes configurações:
+Linux kali 5.15.0-kali3-amd64 #1 SMP Debian 5.15.15-2kali1 (2022-01-31) x86_64 GNU/Linux
+O alvo foi uma VM Kioptrix, disponibilizada no seguinte endereço:
+https://www.vulnhub.com/entry/kioptrix-level-1-1,22/
+
+Installing Kioptrix
+    Fornecer materiais que permitam a qualquer pessoa ganhar experiência prática em segurança digital,
+    software de computador e administração de rede. https://www.vulnhub.com/entry/kioptrix-level-1-1,22/
+
+scanning with nmap
+        arp-scan -l
+            arp-scan -> é uma ferramenta de linha de comando que usa o protocolo ARP para descobrir e identificar hosts IP
+            na rede local. Está disponível para Linux e BSD sob a licença GPL.
+            -l -> Gere endereços da configuração da interface de rede.
+
+        netdiscover -r 192.168.57.0/24         192.168.57.4
+            Netdiscover é uma ferramenta de reconhecimento de endereço ativo/passivo,
+            desenvolvido principalmente para aquelas redes sem fio sem servidor dhcp,
+            quando você está dirigindo. Também pode ser usado em redes hub/switched.
+            -r -> range.
+
+        nmap -T4 -p- -A 192.168.57.4
+            nmap — Ferramenta de exploração de rede e segurança / scanner de porta
+            -A  -> Habilite a detecção de SO, detecção de versão, verificação de script e traceroute.
+            -T <0-5>: Definir modelo de tempo (mais alto é mais rápido)
+            -p- -> testart todas as portas
+
+Enumerating HTTP and HTTPS
+    nikto
+        é uma poderosa ferramenta escrita em Perl cujo
+        objetivo é a análise de vulnerabilidades comuns em servidores Web.
+
+    nikto -h 192.168.57.4
+        mod_ssl/2.8.4 - mod_ssl 2.8.7 and lower are vulnerable to a remote buffer overflow which may allow a remote shell. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-0082, OSVDB-756.
+
+
+     dirbuster&
+
+           http://192.168.57.4:80/
+           GO faster
+           /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt
+           php
+
+Enumerating SMB
+    msfconsole
+        Ele fornece um console centralizado “tudo em um” e permite acesso eficiente a
+        praticamente todas as opções disponíveis no MSF.
+            search smb
+            auxiliary/scanner/smb/smb_version
+            set RHOSTS 192.168.57.4
+            run
+
+    smbclient é um cliente que faz parte do pacote de software Samba .
+    Ele se comunica com um servidor LAN Manager , oferecendo uma interface semelhante à do programa ftp .
+
+        smbclient -L \\\\192.168.57.134\\
+
+        smbclient \\\\192.168.57.4\\IPC$ (entrei no smb com esse comando)
+
+Enumerating SSH
+
+
+Researching Potential Vulnerabilities
+    searchsploit , uma ferramenta de pesquisa de linha de comando para Exploit-DB
+    que também permite que você leve uma cópia do Exploit Database com você, onde quer que vá.
+
+        searchsploit Samba 2.2.1a
+
+
