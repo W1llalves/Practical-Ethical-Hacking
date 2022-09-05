@@ -16,3 +16,5 @@ https://www.vulnhub.com/entry/kioptrix-level-1-1,22/
 2- Windows 7 Ultimate 7601 Service Pack 1 microsoft-ds
 
 3- Linux academy 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64 GNU/Linux
+
+4- Linux dev 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x84_64 GNU/Linux
